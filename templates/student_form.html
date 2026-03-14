@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if mode == 'add' %}Add Student{% else %}Edit Student{% endif %}</h2>
+
+<form method="post" class="card">
+  {% if mode == 'add' %}
+  <label>Student ID
+    <input type="text" name="student_id" required autofocus placeholder="e.g., S001">
+  </label>
+  {% else %}
+  <div class="muted">Student ID: <strong>{{ student.student_id }}</strong></div>
+  {% endif %}
+  <label>Name
+    <input type="text" name="name" required value="{{ student.name if student else '' }}">
+  </label>
+  <label>Class
+    <input type="text" name="class" required placeholder="e.g., Class 5A" value="{{ student.class if student else '' }}">
+  </label>
+  <button type="submit">{% if mode == 'add' %}Add{% else %}Update{% endif %}</button>
+  <a class="btn" href="{{ url_for('students') }}">Cancel</a>
+</form>
+{% endblock %}

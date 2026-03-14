@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rural Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Rural Attendance</div>
+    {% if session.get('username') %}
+      <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('students') }}">Students</a>
+        <a href="{{ url_for('attendance_mark') }}">Mark Attendance</a>
+        <a href="{{ url_for('reports') }}">Reports</a>
+        <a href="{{ url_for('logout') }}">Logout ({{ session.get('username') }})</a>
+      </nav>
+    {% endif %}
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash">
+          {% for category, msg in messages %}
+            <li class="flash-{{ category }}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <small>Offline-first • SQLite • Flask</small>
+  </footer>
+</body>
+</html>

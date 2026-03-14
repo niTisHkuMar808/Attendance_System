@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Mark Attendance</h2>
+
+<form method="get" class="row">
+  <label>Date
+    <input type="date" name="date" value="{{ selected_date }}">
+  </label>
+  <label>Class
+    <select name="class" required>
+      <option value="">-- Select Class --</option>
+      {% for c in classes %}
+        <option value="{{ c }}" {% if selected_class == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Load</button>
+</form>
+
+{% if students %}
+<form method="post">
+  <input type="hidden" name="date" value="{{ selected_date }}">
+  <input type="hidden" name="class" value="{{ selected_class }}">
+  <div class="card">
+    <h3>Quick Scan</h3>
+    <p class="muted">Focus the box and scan a QR/RFID (or type Student ID) to mark <strong>Present</strong> for {{ selected_date }}.</p>
+    <form id="scanForm" onsubmit="return false;">
+      <input id="scanInput" type="text" placeholder="Scan or type Student ID, then Enter" autofocus>
+    </form>
+    <div id="scanMsg" class="muted"></div>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for s in students %}
+      <tr>
+        <td>{{ s.student_id }}</td>
+        <td>{{ s.name }}</td>
+        <td>
+          {% set cur = existing.get(s.student_id) %}
+          <label><input type="radio" name="status_{{ s.student_id }}" value="Present" {% if cur == 'Present' %}checked{% endif %}> Present</label>
+          <label><input type="radio" name="status_{{ s.student_id }}" value="Absent" {% if cur == 'Absent' %}checked{% endif %}> Absent</label>
+          <label><input type="radio" name="status_{{ s.student_id }}" value="Late" {% if cur == 'Late' %}checked{% endif %}> Late</label>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit">Save All</button>
+</form>
+{% else %}
+<p class="muted">Select a class to load students.</p>
+{% endif %}
+
+<script>
+(function() {
+  const input = document.getElementById('scanInput');
+  const msg = document.getElementById('scanMsg');
+  if (!input) return;
+
+  function postScan(sid) {
+    fetch('{{ url_for("attendance_scan") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        student_id: sid,
+        status: 'Present',
+        date: '{{ selected_date }}'
+      })
+    }).then(r => r.json()).then(data => {
+      if (data.ok) {
+        msg.textContent = data.message;
+      } else {
+        msg.textContent = data.message || 'Error';
+      }
+      // Clear input, refocus
+      input.value = '';
+      input.focus();
+    }).catch(() => {
+      msg.textContent = 'Network error (local only). Try again.';
+      input.value = '';
+      input.focus();
+    });
+  }
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const sid = input.value.trim();
+      if (sid) postScan(sid);
+    }
+  });
+
+  // Always try to keep focus in the scan box for fast scanning
+  window.addEventListener('click', function() {
+    input.focus();
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="grid">
+  <div class="stat">
+    <div class="stat-title">Students</div>
+    <div class="stat-value">{{ total_students }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Today ({{ today }}) Present</div>
+    <div class="stat-value">{{ present }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Today Absent</div>
+    <div class="stat-value">{{ absent }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Today Late</div>
+    <div class="stat-value">{{ late }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Quick Actions</h3>
+  <div class="row">
+    <a class="btn" href="{{ url_for('students') }}">Manage Students</a>
+    <a class="btn" href="{{ url_for('attendance_mark') }}">Mark Attendance</a>
+    <a class="btn" href="{{ url_for('reports') }}">View Reports</a>
+  </div>
+</div>
+{% endblock %}
